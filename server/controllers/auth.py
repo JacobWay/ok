@@ -175,19 +175,20 @@ def login():
     return google_auth.authorize(callback=url_for('.authorized', _external=True))
 
 @auth.route('/login/authorized/')
-@google_auth.authorized_handler
-def authorized(resp):
-    if isinstance(resp, OAuthException):
-        error = "{0} - {1}".format(resp.data.get('error', 'Unknown Error'),
-                                   resp.data.get('error_description', 'Unknown'))
+def authorized():
+    resp = google_auth.authorized_response()
+    if resp is None:
+        error = ("Access denied {0} - {1}"
+                 .format(request.args.get('error', 'Unknown Error'),
+                         request.args.get('error_description', 'Unknown')))
+
         flash(error, "error")
         # TODO Error Page
         return redirect("/")
-    if resp is None:
-        error = "Access denied: reason={0} error={1}".format(
-            request.args['error_reason'],
-            request.args['error_description']
-        )
+
+    if isinstance(resp, OAuthException):
+        error = "{0} - {1}".format(resp.data.get('error', 'Unknown Error'),
+                                   resp.data.get('error_description', 'Unknown'))
         flash(error, "error")
         # TODO Error Page
         return redirect("/")

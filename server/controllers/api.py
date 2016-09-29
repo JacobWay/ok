@@ -672,6 +672,18 @@ class Enrollment(Resource):
             return True
         return resource == requester
 
+class CourseEnrollment(Resource):
+    """ Information about all students in a course.
+    Authenticated. Permissions: >= User or admins
+    Used by: Export scripts.
+    """
+    model = models.Enrollment
+    schema = EnrollmentSchema()
+
+    @marshal_with(schema.get_fields)
+    def get(self, cid, user):
+        return {'courses': self.model.get_all_students(cid)}
+
 class Score(Resource):
     """ Score creation.
         Authenticated. Permissions: >= Staff
@@ -795,6 +807,7 @@ class User(Resource):
 
         restful.abort(403)
 
+
 # Endpoints
 api.add_resource(V3Info, '/v3/')
 
@@ -811,6 +824,7 @@ api.add_resource(ExportFinal, ASSIGNMENT_BASE + '/submissions/')
 
 # Other
 api.add_resource(Enrollment, '/v3/enrollment/<string:email>/')
+api.add_resource(CourseEnrollment, '/v3/course_enrollment/<string:cid>')
 api.add_resource(Score, '/v3/score/')
 
 api.add_resource(User, '/v3/user/', '/v3/user/<string:email>')

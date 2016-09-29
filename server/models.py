@@ -715,6 +715,10 @@ class Enrollment(Model):
 
         cache.delete_memoized(User.is_enrolled)
 
+    @staticmethod
+    def get_all_students(cid):
+        return Enrollment.query.filter_by(course_id=cid, role=STUDENT_ROLE).all()
+
 class Message(Model):
     __tablename__ = 'message'
     __table_args__ = {'mysql_row_format': 'COMPRESSED'}
